@@ -1,8 +1,7 @@
 % COMP 6321 Machine Learning, Fall 2016
 % Federico O'Reilly Regueiro - 40012304
 % Assignment 1, due September 30
-function [] = A1
-    % Q 1a
+function [] = A  % Q 1a
     x = load('hw1x.dat');
     y = load('hw1y.dat');
 
@@ -38,6 +37,7 @@ function [] = A1
     trainingErr(x_prime, w3, y, 'cubic hypothesis');
 
     legend('data points', 'linear regression', 'quadratic regression', 'cubic regression');
+    hold off;
 end
 
 % Q 1c
