@@ -1,6 +1,11 @@
 % COMP 6321 Machine Learning, Fall 2016
 % Federico O'Reilly Regueiro - 40012304
 % Assignment 1, due September 30
+
+% Note: albeit non-standard, in order to create a single m file, the ' script' 
+% part has been wrapped in a function that takes no parameters and returns 
+% nothing...
+
 function [] = A  % Q 1a
     x = load('hw1x.dat');
     y = load('hw1y.dat');
@@ -38,6 +43,11 @@ function [] = A  % Q 1a
 
     legend('data points', 'linear regression', 'quadratic regression', 'cubic regression');
     hold off;
+
+    % Q 1h
+    % TODO - use randperm to permutate the entries, reshape to a m x n/5 x 5 "matrix"
+    % then loop over creating a training copy with all but the ith m x n/5 matrices
+    % for training and the ith matrix for validation
 end
 
 % Q 1c
