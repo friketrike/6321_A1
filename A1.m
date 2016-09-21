@@ -11,8 +11,10 @@ function [] = A1  % Q 1a
     y = load('hw1y.dat');
 
     % plot x against y, use circles and avoid plotting connecting lines
+    figure(1);
     plot(x, y, 'o');
-    title('Comp 6321, Fall 2016 - Assignment 1 - Federico O''Reilly Regueiro');
+    title(['Comp 6321, Fall 2016 - A1 - Federico O''Reilly Regueiro -', ... 
+           ' data plot and regressions d = [1:3]']);
     ylabel('y');
     xlabel('x');
 
@@ -51,8 +53,18 @@ function [] = A1  % Q 1a
     % Q 1h
     [d, train_error, test_error] = k_fold_cv (x, y, 5);
     figure(2);
-    plot(log(test_error));
+    plot(test_error);
+    title(['Comp 6321, Fall 2016 - A1 - Federico O''Reilly Regueiro -', ... 
+           ' data plot and regressions d = [1:3]']);
+    ylabel('Test MSE');
+    xlabel('d - order of polynomial regression');
+
+    [wd, x_prime] = PolyRegress(x,y,d);
+    figure(3);
+    plot(x(:,1), y, 'o');
     hold on;
+    plot(x(:, size(x,2)-1), x_prime*wd, 'r*');, 
+    hold off;
 end
 
 % Q 1c
@@ -73,7 +85,7 @@ function [w, x_prime] = PolyRegress(x,y,d)
 end
 
 % helper for PolyRegress
-function x_prime = format_poly(x,d)
+function x_prime = format_poly(x,d) % TODO continue here and propagate normalization
     x_prime = repmat(x(:,1), 1, d+1).^(repmat((d:-1:0), size(x,1), 1));
 end
 
