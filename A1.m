@@ -54,9 +54,14 @@ function [] = A1  % Q 1a
     [d, train_error, test_error] = k_fold_cv (x, y, 5);
     figure(2);
     plot(test_error);
+    hold on;
+    plot(2:d+1,diff(test_error), 'r.');
+    test_error
+    diff(test_error)
+    hold off;
     title(['Comp 6321, Fall 2016 - A1 - Federico O''Reilly Regueiro -', ... 
            ' data plot and regressions d = [1:3]']);
-    ylabel('Test MSE');
+    ylabel('validation MSE');
     xlabel('d - order of polynomial regression');
 
     [wd, x_prime] = PolyRegress(x,y,d);
@@ -98,7 +103,8 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
         normalize = false;
     end
     m = size(x,1);
-    x_shuffle = x(randperm(m),:);
+    % x_shuffle = x(randperm(m),:);
+    x_shuffle = 1:m;
     
     % matlab abonimation for a do-while loop
     test_err_decreasing = true;
@@ -108,15 +114,16 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
     test_error = realmax;
     train_error = realmax;
     d = 0;
-    while (test_err_decreasing)
+    while (d<8)%(test_err_decreasing)
         % create a blank entry to accumulate errors each fold
         d = d+1; 
         test_error = [test_error; 0];
         train_error = [train_error; 0];
-        for i = 1:m/k
-           idx_btm = 1:(k*(i-1));
-           idx_tst = k*(i-1)+1:(k*i);
-           idx_top = (k*i)+1:m;
+        m_k = m/k;
+        for i = 1:k
+           idx_btm = 1:(m_k*(i-1));
+           idx_tst = m_k*(i-1)+1:(m_k*i);
+           idx_top = (m_k*i)+1:m;
            x_train = [x(idx_btm,:);x(idx_top,:)];
            y_train = [y(idx_btm,:);y(idx_top,:)];
            x_test = format_poly(x(idx_tst, :), d);
@@ -132,14 +139,17 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
            jh_test = trainingErr(x_test, w, y_test);
            test_error(d+1) = test_error(d+1) + jh_test;
         end
-        test_err_decreasing = (test_error(d+1) < test_error(d));  
+        % TODO should our test allow one isolated small increase?
+        % TODO also, change condition above used now to 'hack' d
+        test_err_decreasing = test_error(d+1) < test_error(d);  
     end
+    % TODO change the format of returned errors so we can get a variance
     % remove first entry for errors vectors
-    test_error(1) = [];
-    train_error(1) = [];
+    test_error(1,:) = [];
+    train_error(1,:) = [];
     % divide errors between k
-    test_error = test_error./k;
-    train_error = train_error./k;
+    test_error = test_error/k;
+    train_error = train_error/k;
     % d already stopped decreasing, optimal d has been passed
     d = d-1;
 end
