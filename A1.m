@@ -13,7 +13,7 @@ function [] = A1  % Q 1a
     % plot x against y, use circles and avoid plotting connecting lines
     figure(1);
     plot(x, y, 'o');
-    title(['data plot and regressions d = [1:3]']);
+    title('data plot and regressions d = [1:3]');
     ylabel('y / hw(x)');
     xlabel('x');
 
@@ -54,9 +54,9 @@ function [] = A1  % Q 1a
     figure(2);
     plot(mean(test_error, 2));
     hold on;
+    % Plot the finite difference for the test errors
     diff_abscissa = 2:size(test_error,1);
-    mean_test_error = mean(test_error,2)
-    test_err_diff = diff(mean(test_error,2))
+    test_err_diff = diff(mean(test_error,2));
     % plot non-positive finite difference
     idx = test_err_diff < 0;
     plot(diff_abscissa(idx),test_err_diff(idx), 'g*' );
@@ -65,18 +65,18 @@ function [] = A1  % Q 1a
     plot(diff_abscissa(idx),test_err_diff(idx), 'rx' );
     plot(1:d+2, zeros(d+2, 1), 'k-');
     hold off;
-    title(['Data plot and regressions d = [1:', num2str(d+1), ']']);
+    title('Data plot and regressions');
     ylabel('validation MSE');
     xlabel('d - order of polynomial regression');
     legend('mean of testing errors (mte)', ...
-           'negative fd(mte) ( ie. mte(d) - mte(d-1) < 0 )', 
+           'negative fd(mte) ( ie. mte(d) - mte(d-1) < 0 )', ...
            'positive fd(mte)');
     [wd, x_prime] = PolyRegress(x,y,d);
     jh_d = trainingErr(x_prime, wd, y);
     figure(3);
     plot(x(:,1), y, 'o');
     hold on;
-    plot(x(:, size(x,2)-1), x_prime*wd, 'r*');, 
+    plot(x(:, size(x,2)-1), x_prime*wd, 'r*'); 
     hold off;
     title(['Data plot and polynomial regresion of order ', num2str(d), ...
           ' obtained via 5-fold cross validation']);
@@ -93,9 +93,9 @@ function [] = A1  % Q 1a
     figure(4);
     plot(mean(test_error, 2));
     hold on;
+    % Plot the finite difference for the test errors
     diff_abscissa = 2:size(test_error,1);
-    mean_test_error = mean(test_error,2)
-    test_err_diff = diff(mean(test_error,2))
+    test_err_diff = diff(mean(test_error,2));
     % plot non-positive finite difference
     idx = test_err_diff < 0;
     plot(diff_abscissa(idx),test_err_diff(idx), 'g*' );
@@ -104,18 +104,18 @@ function [] = A1  % Q 1a
     plot(diff_abscissa(idx),test_err_diff(idx), 'rx' );
     plot(1:d+2, zeros(d+2, 1), 'k-');
     hold off;
-    title(['Data plot and regressions d = [1:', num2str(d+1), ']']);
+    title('Data plot and regressions, normalized');
     ylabel('validation MSE');
     xlabel('d - order of polynomial regression');
     legend('mean of testing errors (mte)', ...
-           'negative fd(mte) ( ie. mte(d) - mte(d-1) < 0 )', 
+           'negative fd(mte) ( ie. mte(d) - mte(d-1) < 0 )', ...
            'positive fd(mte)');
     [wd, x_prime] = PolyRegress(x,y,d, true);
     jh_d = trainingErr(x_prime, wd, y);
     figure(5);
     plot(x(:,1), y, 'o');
     hold on;
-    plot(x(:, size(x,2)-1), x_prime*wd, 'r*');, 
+    plot(x(:, size(x,2)-1), x_prime*wd, 'r*'); 
     hold off;
     title(['Data plot and polynomial regresion of order ', num2str(d), ...
           ' obtained via 5-fold cross validation']);
@@ -152,7 +152,7 @@ function x_prime = format_poly(x,d, normalize)
   end  
   x_prime = repmat(x(:,1), 1, d+1).^(repmat((d:-1:0), size(x,1), 1));
   if normalize
-  x_prime = x_prime * inv(diag(max(x_prime)));
+  x_prime = x_prime / (diag(max(x_prime)));
   end
 end
 
@@ -164,7 +164,6 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
     if nargin < 4
         normalize = false;
     end
-    normalize
     m = size(x,1);
     % x_shuffle = x(randperm(m),:);
     x_shuffle = 1:m;
@@ -202,14 +201,11 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
            jh_test = trainingErr(x_test, w, y_test);
            test_error(d+2, k) = jh_test;
         end
-        % TODO should our test allow one isolated small increase?
-        % TODO also, change condition above used now to 'hack' d
+
         test_err_decreasing = (mean(test_error(d+2,:))...
-             <= mean(test_error(d+1,:)))...
-                  || (mean(test_error(d+2,:)) - mean(test_error(d+1,:))) ...
-                  < 32 * abs(mean(test_error(d+1,:)) - mean(test_error(d,:)));
+             <= mean(test_error(d+1,:))) ...
+                  || (mean(test_error(d+2,:)) < mean(test_error(d,:))); 
     end
-    % TODO change the format of returned errors so we can get a variance
     % remove first entry for errors vectors
     test_error(1:2,:) = [];
     train_error(1:2,:) = [];
