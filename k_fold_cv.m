@@ -3,18 +3,25 @@
 % Assignment 1, due September 30
 
 %%%% Q1 h and Q1 i %%%%
-function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
+function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize, order_y)
     % sure, we could solve for the general case, but...
     if mod(size(x,1), k)
         error('Matrix x must contain a multiple of k entries');
+    end
+    if nargin < 5
+        order_y = false;
     end
     if nargin < 4
         normalize = false;
     end
     m = size(x,1);
-    idx_shuffle = randperm(m);
-    % Uncomment the following line to obtain folds as per Q1 g
-    % [dummy, idx_shuffle] = sort(y);
+    % for question 1 g
+    if order_y
+        [dummy, idx_shuffle] = sort(y);
+    else 
+        %idx_shuffle = randperm(m);
+        idx_shuffle  = 1:m;
+    end
     
     % matlab abonimation for a do-while loop
     test_err_decreasing = true;
@@ -32,6 +39,8 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
         d = d+1; 
 
         m_k = m/k;
+        
+        h_space = [];
 
         for i = 1:k
            idx_btm = idx_shuffle(1:(m_k*(i-1)));
@@ -51,20 +60,25 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize)
            x_test_poly = format_poly(x_test, d, normalize);
            jh_test = trainingErr(x_test_poly, w, y_test);
            test_error(d+2, i) = jh_test;
+           
+           % store w for plotting the hypotheses; support for Q1g
+           h_space = [h_space, w];
         end
-
+        
+        if order_y
+            plot_h_space(x, y, d, h_space);
+        end
+        
         test_err_decreasing = ...
-                (mean(test_error(d+2,:)) <= mean(test_error(d+1,:))) ...
-             || (mean(test_error(d+2,:)) < mean(test_error(d,:))); 
+              (mean(test_error(d+2,:)) <= mean(test_error(d+1,:))) ...
+           || (mean(test_error(d+2,:)) < mean(test_error(d,:)));       
+        
+        % test_err_decreasing = d < 32;
     end
 
     % remove first two entries for errors vectors
     test_error(1:2,:) = [];
-    train_error(1:2,:) = [];
-
-    % divide errors between k
-    test_error = test_error/k;
-    train_error = train_error/k;
+    train_error(1:2,:) = [];104
 
     % d already stopped decreasing, optimal d has been passed 
     [dummy, d] = min(mean(test_error,2));
