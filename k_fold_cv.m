@@ -69,17 +69,18 @@ function [d, train_error, test_error] = k_fold_cv (x, y, k, normalize, order_y)
             plot_h_space(x, y, d, h_space);
         end
         
-        test_err_decreasing = ...
+       test_err_decreasing = ...
               (mean(test_error(d+2,:)) <= mean(test_error(d+1,:))) ...
            || (mean(test_error(d+2,:)) < mean(test_error(d,:)));       
-        
-        % test_err_decreasing = d < 32;
     end
 
     % remove first two entries for errors vectors
     test_error(1:2,:) = [];
-    train_error(1:2,:) = [];104
+    train_error(1:2,:) = [];
 
-    % d already stopped decreasing, optimal d has been passed 
+    % d already stopped decreasing, optimal d has just been passed
+    % since we're checking the last two errors, we'd have to check 
+    % conditions if optimal d is d - 1 or d - 2, but in this case
+    % it's simpler to just take the minimum as it will be equivalent 
     [dummy, d] = min(mean(test_error,2));
 end

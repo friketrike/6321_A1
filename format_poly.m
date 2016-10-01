@@ -9,7 +9,7 @@ function x_prime = format_poly(x,d, normalize)
   end  
   x_prime = repmat(x(:,1), 1, d+1).^(repmat((d:-1:0), size(x,1), 1));
   if normalize
-  x_prime = x_prime / (diag(max(x_prime)));
+    x_prime = x_prime / (diag(max(x_prime)));
   end
 end
 
